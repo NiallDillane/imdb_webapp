@@ -38,7 +38,7 @@ services:
       - postgres-init
     command: ["flask", "run", "--host=0.0.0.0"]
     volumes:
-      - ./api:/backend
+      - ./api:/api
     environment:
       - PYTHONUNBUFFERED=anything
       - FLASK_ENV=development
