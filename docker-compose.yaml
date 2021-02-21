@@ -1,0 +1,66 @@
+version: '2.1'
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=lunatech_imdb
+    ports:
+      - "5432:5432"
+    networks:
+      - default
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: none
+
+  postgres-init:
+    image: postgres:13
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - PGPASSWORD=postgres
+      - MINIMAL_DATASET=false
+    volumes:
+      - ./database-init/schema.sql:/schema.sql
+      - ./database-init/initialize-imdb.sh:/initialize-imdb.sh
+    command: bash -c "sleep 10 && chmod u+x /initialize-imdb.sh && /initialize-imdb.sh"
+
+  api:
+    build: api
+    depends_on:
+      - postgres-init
+    command: ["flask", "run", "--host=0.0.0.0"]
+    volumes:
+      - ./api:/backend
+    environment:
+      - PYTHONUNBUFFERED=anything
+      - FLASK_ENV=development
+      - FLASK_APP=app.py
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+    ports:
+      - "5000:5000"
+
+  client:
+    build: client
+    command: ["npm", "start"]
+    volumes:
+      - ./client:/client
+      - node-modules:/client/node_modules
+    environment:
+      - NODE_ENV=development
+    ports:
+      - '3000:3000'
+    depends_on:
+      - api
+
+volumes:
+  node-modules:
+

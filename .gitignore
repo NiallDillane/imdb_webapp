@@ -1,0 +1,7 @@
+*.tsv
+*.gz
+.metals
+.vscode
+*.minimal
+.DS_Store
+.ammonite/
