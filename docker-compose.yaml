@@ -36,6 +36,7 @@ services:
     build: api
     depends_on:
       - postgres-init
+      - postgres
     command: ["flask", "run", "--host=0.0.0.0"]
     volumes:
       - ./api:/api
@@ -60,7 +61,9 @@ services:
       - '3000:3000'
     depends_on:
       - api
+      - postgres
+      - postgres-init
+
 
 volumes:
   node-modules:
-
