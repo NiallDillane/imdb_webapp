@@ -5,3 +5,4 @@
 *.minimal
 .DS_Store
 .ammonite/
+api/__pycache__/
